@@ -1,0 +1,7 @@
+Programarea Calculatoarelor, seria CC
+Tema2 - 2048
+
+2048.c coincide cu ex1.c aflat în dosarul exemple
+
+Pentru compilare: make
+Pentru rulare: make run
