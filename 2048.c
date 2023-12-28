@@ -44,9 +44,15 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 		switch (opt) {
 			case KEY_UP:
 				high--;
+				if (high == -1) {
+					high = 0;
+				}
 				break;
 			case KEY_DOWN:
 				high++;
+				if (high == 3) {
+					high = 2;
+				}
 				break;
 			default:
 				break;
@@ -55,7 +61,12 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 			break;
 		}
 	}
-	if (high == 0) {
+	return high;
+}
+
+void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int **mat) {
+	int c;
+	while (FOREVER) {
 		joc = newwin(20,40, 7, 15);
 		scor = newwin(5, 10, 10, 40);
 		refresh();
@@ -68,19 +79,29 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 		box(scor, 0, 0);
 		wrefresh(joc);
 		wrefresh(scor);
+		c = getch();
+		if (c == 'q') {
+			clear();
+			break;
+		}
 	}
-	else if (high == 1) {
+}
+
+void resume(WINDOW *joc, WINDOW *scor, int *puncte, int **mat) {
+	int c;
+	while (FOREVER) {
 		joc = newwin(20,40, 7, 15);
 		refresh();
 		wmove(joc, 5, 5);
 		afis(mat, joc);
 		box(joc, 0, 0);
 		wrefresh(joc);
-	}
-		else {
-			return 0;
+		c = getch();
+		if (c == 'q') {
+			clear();
+			break;
 		}
-	return 1;
+	}
 }
 
 int main(void)
@@ -112,13 +133,7 @@ int main(void)
 
 	//folosim sageti pentru deplasare
 	keypad(wnd, true);
-	x = menu(wnd, variante, joc, mat, scor, &puncte);
-	if (x == 0) {
-		endwin();
-		return 0;
-	}
 	
-
 	/* Se va afișa un mesaj la poziția formată din primii doi parametri - (par1, par2) */	
 	/*mvaddstr(0, 0, "Puteti sa mutati '*' folosind tastele:");
 	mvaddstr(1, 2, "A - stanga");
@@ -137,11 +152,28 @@ int main(void)
 
 	/* Rămânem în while până când se primește tasta q */
 	while (FOREVER) {
-		c = getchar();
+		x = menu(wnd, variante, joc, mat, scor, &puncte);
+		switch (x) {
+			case 0:
+				werase(wnd);
+				wrefresh(wnd);
+				new_game(joc, scor, &puncte, mat);
+				refresh();
+				break;
+			case 1:
+				werase(wnd);
+				wrefresh(wnd);
+				resume(joc, scor, &puncte, mat);
+				break;
+			default:
+				endwin();
+				return 0;
+		}
+		/*c = getchar();
 
 		if (tolower(c) == 'q') {
 			break;
-		}
+		}*/
 	
 		/* Se determină noua poziție, în funcție de tasta apăsată
 		 * Nu putem depași nrows și ncols, sau linia 0/coloana 0.
