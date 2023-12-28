@@ -6,6 +6,7 @@
 #include <curses.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define FOREVER 	1
 #define INIT_ROW 	20
@@ -100,7 +101,31 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 	return high;
 }
 
-void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int **mat) {
+void initmat(int ***mat) {
+	int i;
+	*mat = (int **)calloc(4, sizeof(int *));
+	for (i = 0; i < 4; i++) {
+		(*mat)[i] = (int *) calloc (4, sizeof(int));
+	}
+}
+
+void start(int ***mat) {
+	int v[] = {2, 4};
+	srand(time(NULL));
+	int lin1, col1, lin2, col2;
+	lin1 = rand() % 4;
+	col1 = rand() % 4;
+	lin2 = rand() % 4;
+	col2 = rand() % 4;
+	while (lin1 == lin2 && col1 == col2) {
+		lin2 = rand() % 4;
+		col2 = rand() % 4;
+	}
+	(*mat)[lin1][col1] = v[rand() % 2];
+	(*mat)[lin2][col2] = v[rand() % 2];
+}
+
+void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat) {
 	int c;
 	while (FOREVER) {
 		joc = newwin(20,40, 5, 15);
@@ -109,8 +134,9 @@ void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int **mat) {
 		*puncte = 0;
 		wmove(joc, 5, 5);
 		wmove(scor, 1, 1);
-		//matrice noua 
-		afis(mat, joc);
+		initmat(&(*mat));
+		start(&(*mat));
+		afis((*mat), joc);
 		box(joc, 0, 0);
 		box(scor, 0, 0);
 		wrefresh(joc);
@@ -123,13 +149,15 @@ void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int **mat) {
 	}
 }
 
-void resume(WINDOW *joc, WINDOW *scor, int *puncte, int **mat) {
+void resume(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat) {
 	int c;
 	while (FOREVER) {
 		joc = newwin(20,40, 7, 15);
+		scor = newwin(5, 10, 15, 40);
 		refresh();
 		wmove(joc, 5, 5);
-		afis(mat, joc);
+		wmove(scor, 1, 1);
+		afis((*mat), joc);
 		box(joc, 0, 0);
 		wrefresh(joc);
 		c = getch();
@@ -142,21 +170,13 @@ void resume(WINDOW *joc, WINDOW *scor, int *puncte, int **mat) {
 
 int main(void)
 {
-	int **mat = (int **)calloc(4, sizeof(int *));
+	int **mat;
 	int row = INIT_ROW, col = INIT_COL, new_row, new_col;
 	int nrows, ncols, i, j, x, puncte = 0;
 	char c, *variante[] = {"New Game", "Resume", "Quit"};
-	for (i = 0; i < 4; i++) {
-		mat[i] = (int *) calloc (4, sizeof(int));
-	}
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 4; j++) {
-			mat[i][j] = 2048;
-		}
-	}
 	/* Se inițializează ecranul; initscr se va folosi în mod obligatoriu */
 	WINDOW *wnd = initscr(), *joc = initscr(), *scor = initscr();
-
+	initmat(&mat);
 	/* getmaxyx - este un macro, nu o funcție, așă că nu avem adresă la parametri */
 	/* Se va reține în nrows și ncols numărul maxim de linii și coloane */
 	getmaxyx(wnd, nrows, ncols);
@@ -197,13 +217,13 @@ int main(void)
 			case 0:
 				werase(wnd);
 				wrefresh(wnd);
-				new_game(joc, scor, &puncte, mat);
+				new_game(joc, scor, &puncte, &mat);
 				refresh();
 				break;
 			case 1:
 				werase(wnd);
 				wrefresh(wnd);
-				resume(joc, scor, &puncte, mat);
+				resume(joc, scor, &puncte, &mat);
 				break;
 			default:
 				endwin();
