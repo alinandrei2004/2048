@@ -65,7 +65,6 @@ void afis(int *mat[], WINDOW *joc) {
     wrefresh(joc);
 }
 
-
 int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int *puncte) {
 	int opt, i, high = 0;
 	while (FOREVER) {
