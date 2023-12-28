@@ -18,16 +18,53 @@
  */
  
 void afis(int *mat[], WINDOW *joc) {
-	int i, j;
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 4; j++) {
-			if (mat[i][j] == EMPTY)
-				mvwprintw(joc, i + 1, 5 * j + 1, "     ", mat[i][j]);
-			else mvwprintw(joc, i + 1, 5 * j + 1, " %4d ", mat[i][j]);
+    int i, j;
+	mvwaddch(joc, 1, 2, ACS_ULCORNER);
+	mvwaddch(joc, 1, 30, ACS_URCORNER);
+	mvwaddch(joc, 9, 2, ACS_LLCORNER);
+	mvwaddch(joc, 9, 30, ACS_LRCORNER);
+	for (i = 1; i < 11; i += 2) {
+		for (j = 3; j < 30; j++) {
+			if (j == 9 || j == 16 || j == 23) {
+				if (i == 1) {
+					mvwaddch(joc, i, j, ACS_TTEE);
+				}
+				else if (i == 9) {
+					mvwaddch(joc, i, j, ACS_BTEE);
+				}
+			}
+			else {
+				mvwaddch(joc, i, j, ACS_HLINE);
+			}
 		}
-		wprintw(joc, "\n");
 	}
+	for (i = 2; i < 9; i++) {
+		for (j = 2; j < 31; j += 7) {
+			if (i == 3 || i == 5 || i == 7) {
+				if (j == 2) {
+					mvwaddch(joc, i, j, ACS_LTEE);
+				}
+				else if (j == 30) {
+					mvwaddch(joc, i, j, ACS_RTEE);
+				}
+				else {
+					mvwaddch(joc, i, j, ACS_PLUS);
+				}
+			}
+			else {
+				mvwaddch(joc, i, j, ACS_VLINE);
+			}
+		}
+	}
+	
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 4; j++) {
+            mvwprintw(joc, i * 2 + 2, j * 7 + 4, "%4d", mat[i][j]);
+        }
+    }
+    wrefresh(joc);
 }
+
 
 int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int *puncte) {
 	int opt, i, high = 0;
@@ -67,8 +104,8 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int **mat) {
 	int c;
 	while (FOREVER) {
-		joc = newwin(20,40, 7, 15);
-		scor = newwin(5, 10, 10, 40);
+		joc = newwin(20,40, 5, 15);
+		scor = newwin(5, 10, 15, 40);
 		refresh();
 		*puncte = 0;
 		wmove(joc, 5, 5);
@@ -108,12 +145,16 @@ int main(void)
 {
 	int **mat = (int **)calloc(4, sizeof(int *));
 	int row = INIT_ROW, col = INIT_COL, new_row, new_col;
-	int nrows, ncols, i, x, puncte = 0;
+	int nrows, ncols, i, j, x, puncte = 0;
 	char c, *variante[] = {"New Game", "Resume", "Quit"};
 	for (i = 0; i < 4; i++) {
 		mat[i] = (int *) calloc (4, sizeof(int));
 	}
-	mat[1][1]=2048;
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 4; j++) {
+			mat[i][j] = 2048;
+		}
+	}
 	/* Se inițializează ecranul; initscr se va folosi în mod obligatoriu */
 	WINDOW *wnd = initscr(), *joc = initscr(), *scor = initscr();
 
