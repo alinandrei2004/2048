@@ -60,7 +60,12 @@ void afis(int *mat[], WINDOW *joc) {
 	
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 4; j++) {
-            mvwprintw(joc, i * 2 + 2, j * 7 + 8, "%4d", mat[i][j]);
+			if (mat[i][j] == 0) {
+				mvwprintw(joc, i * 2 + 2, j * 7 + 8, "    ");
+			}
+			else {
+            	mvwprintw(joc, i * 2 + 2, j * 7 + 8, "%4d", mat[i][j]);
+			}
         }
     }
     wrefresh(joc);
@@ -125,6 +130,19 @@ void start(int ***mat) {
 	(*mat)[lin2][col2] = v[rand() % 2];
 }
 
+void addrand(int ***mat) {
+	int v[] = {2, 4};
+	srand(time(NULL));
+	int lin, col;
+	lin = rand() % 4;
+	col = rand() % 4;
+	while ((*mat)[lin][col] != 0) {
+		lin = rand() % 4;
+		col = rand() % 4;
+	}
+	(*mat)[lin][col] = v[rand() % 2];
+}
+
 void data(WINDOW *scor) {
 	time_t aux;
 	char sir[50];
@@ -137,9 +155,180 @@ void data(WINDOW *scor) {
 	mvwprintw(scor, 2, 15, "%s", sir);
 }
 
-void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat) {
+void stanga(int ***mat, int *puncte) {
+	int i, j, k, ok = 0;
+	for (i = 0; i < 4; i++) {
+		k = 0;
+		for (j = 0; j < 4; j++) {
+			if((*mat)[i][j] != 0) {
+				(*mat)[i][k] = (*mat)[i][j];
+				if(k != j) {
+					(*mat)[i][j] = 0;
+					ok = 1;
+				}
+				k++;
+			}
+		}
+	}
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 3; j++) {
+			if ((*mat)[i][j] == (*mat)[i][j + 1]) {
+				(*mat)[i][j] += (*mat)[i][j + 1];
+				(*mat)[i][j + 1] = 0;
+				*puncte += (*mat)[i][j];
+				ok = 1;
+			}
+		}
+	}
+	for (i = 0; i < 4; i++) {
+		k = 0;
+		for (j = 0; j < 4; j++) {
+			if((*mat)[i][j] != 0) {
+				(*mat)[i][k] = (*mat)[i][j];
+				if(k != j) {
+					(*mat)[i][j] = 0;
+					ok = 1;
+				}
+				k++;
+			}
+		}
+	}
+	if (ok) {
+		addrand(&(*mat));
+	}
+}
+
+void dreapta(int ***mat, int *puncte) {
+	int i, j, k, ok = 0;
+	for (i = 0; i < 4; i++) {
+		k = 3;
+		for (j = 3; j >= 0; j--) {
+			if((*mat)[i][j] != 0) {
+				(*mat)[i][k] = (*mat)[i][j];
+				if(k != j) {
+					(*mat)[i][j] = 0;
+					ok = 1;
+				}
+				k--;
+			}
+		}
+	}
+	for (i = 0; i < 4; i++) {
+		for (j = 3; j > 0; j--) {
+			if ((*mat)[i][j] == (*mat)[i][j - 1] && (*mat)[i][j] != 0) {
+				(*mat)[i][j] += (*mat)[i][j - 1];
+				(*mat)[i][j - 1] = 0;
+				*puncte += (*mat)[i][j];
+				ok = 1;
+			}
+		}
+	}
+	for (i = 0; i < 4; i++) {
+		k = 3;
+		for (j = 3; j >= 0; j--) {
+			if((*mat)[i][j] != 0) {
+				(*mat)[i][k] = (*mat)[i][j];
+				if(k != j) {
+					(*mat)[i][j] = 0;
+					ok = 1;
+				}
+				k--;
+			}
+		}
+	}
+	if (ok) {
+		addrand(&(*mat));
+	}
+}
+
+void sus(int ***mat, int *puncte) {
+	int i, j, k, ok = 0;
+	for (i = 0; i < 4; i++) {
+		k = 0;
+		for (j = 0; j < 4; j++) {
+			if ((*mat)[j][i] != 0) {
+				(*mat)[k][i] = (*mat)[j][i];
+				if (k != j) {
+					(*mat)[j][i] = 0;
+					ok = 1;
+				}
+				k++;
+			}
+		}
+	}
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 3; j++) {
+			if ((*mat)[j][i] == (*mat)[j + 1][i]) {
+				(*mat)[j][i] += (*mat)[j + 1][i];
+				(*mat)[j + 1][i] = 0;
+				*puncte += (*mat)[j][i];
+				ok = 1;
+			}
+		}
+	}
+	for (i = 0; i < 4; i++) {
+		k = 0;
+		for (j = 0; j < 4; j++) {
+			if ((*mat)[j][i] != 0) {
+				(*mat)[k][i] = (*mat)[j][i];
+				if (k != j) {
+					(*mat)[j][i] = 0;
+					ok = 1;
+				}
+				k++;
+			}
+		}
+	}
+	if (ok) {
+		addrand(&(*mat));
+	}
+}
+
+void jos(int ***mat, int *puncte) {
+	int i, j, k, ok = 0;
+	for (i = 0; i < 4; i++) {
+		k = 3;
+		for (j = 3; j >= 0; j--) {
+			if ((*mat)[j][i] != 0) {
+				(*mat)[k][i] = (*mat)[j][i];
+				if (k != j) {
+					(*mat)[j][i] = 0;
+					ok = 1;
+				} 
+				k--;
+			}
+		}
+	}
+	for (i = 0; i < 4; i++) {
+		for (j = 3; j > 0; j--) {
+			if ((*mat)[j][i] == (*mat)[j - 1][i]) {
+				(*mat)[j][i] += (*mat)[j - 1][i];
+				(*mat)[j - 1][i] = 0;
+				*puncte += (*mat)[j][i];
+				ok = 1;
+			}
+		}
+	}
+	for (i = 0; i < 4; i++) {
+		k = 3;
+		for (j = 3; j >= 0; j--) {
+			if ((*mat)[j][i] != 0) {
+				(*mat)[k][i] = (*mat)[j][i];
+				if (k != j) {
+					(*mat)[j][i] = 0;
+					ok = 1;
+				} 
+				k--;
+			}
+		}
+	}
+	if (ok) {
+		addrand(&(*mat));
+	}
+}
+
+void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat, char com[][15]) {
 	int c, k = 4, i;
-	char com[4][15];
 	for (i = 0; i < 4; i++) {
 		strcpy(com[i], "");
 	}
@@ -166,24 +355,28 @@ void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat) {
 			break;
 		}
 		else if (c == 'w') {
+			sus(&(*mat), &(*puncte));
 			for (i = k - 1; i > 0; i--) {
 				strcpy(com[i], com[i - 1]);
 			}
 			strcpy(com[0], "SUS    ");
 		}
 			else if (c == 's') {
+				jos(&(*mat), &(*puncte));
 				for(i = k - 1; i > 0; i--) {
 					strcpy(com[i], com[i - 1]);
 				}
 				strcpy(com[0], "JOS    ");
 			}
 				else if (c == 'd') {
+					dreapta(&(*mat), &(*puncte));
 					for(i = k - 1; i > 0; i--) {
 						strcpy(com[i], com[i - 1]);
 					}
 					strcpy(com[0], "DREAPTA");
 				}
 					else if (c == 'a') {
+						stanga(&(*mat), &(*puncte));
 						for(i = k - 1; i > 0; i--) {
 							strcpy(com[i], com[i - 1]);
 						}
@@ -195,17 +388,16 @@ void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat) {
 	}
 }
 
-void resume(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat) {
+void resume(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat, char com[][15]) {
 	int c, i, k = 4;
-	char com[4][15];
-	for (i = 0; i < 4; i++) {
-		strcpy(com[i], "");
-	}
 	joc = newwin(20, 41, 5, 15);
 	scor = newwin(9, 29, 15, 21);
 	refresh();
 	wmove(joc, 5, 5);
 	wmove(scor, 1, 1);
+	for (i = 0; i < k; i++) {
+			mvwprintw(scor, i + 3, 5, "%s", com[i]);
+		}
 	while (FOREVER) {
 		afis((*mat), joc);
 		mvwprintw(scor, 1, 1, "SCORE: %5d", *puncte);
@@ -256,6 +448,10 @@ int main(void)
 	int row = INIT_ROW, col = INIT_COL, new_row, new_col;
 	int nrows, ncols, i, j, x, puncte = 0;
 	char c, *variante[] = {"New Game", "Resume", "Quit"};
+	char com[4][15];
+	for (i = 0; i < 4; i++) {
+		strcpy(com[i], "");
+	}
 	/* Se inițializează ecranul; initscr se va folosi în mod obligatoriu */
 	WINDOW *wnd = initscr(), *joc = initscr(), *scor = initscr();
 	initmat(&mat);
@@ -276,19 +472,6 @@ int main(void)
 	//folosim sageti pentru deplasare
 	keypad(wnd, true);
 	
-	/* Se va afișa un mesaj la poziția formată din primii doi parametri - (par1, par2) */	
-	/*mvaddstr(0, 0, "Puteti sa mutati '*' folosind tastele:");
-	mvaddstr(1, 2, "A - stanga");
-	mvaddstr(2, 2, "D - dreapta");
-	mvaddstr(3, 2, "W - sus");
-	mvaddstr(4, 2, "S - jos");
-	mvaddstr(5, 0, "Pentru iesire, apasati tasta Q.");*/
-
-	/* Se mută cursorul la poziția (row, col) */ 
-	//  move(row, col);
-	/* Se adaugă la poziția indicată de cursor caracterul '*' */
-	//  addch('*');
-	
 	/* Se reflectă schimbările pe ecran */
 	refresh();
 
@@ -299,65 +482,18 @@ int main(void)
 			case 0:
 				werase(wnd);
 				wrefresh(wnd);
-				new_game(joc, scor, &puncte, &mat);
+				new_game(joc, scor, &puncte, &mat, com);
 				refresh();
 				break;
 			case 1:
 				werase(wnd);
 				wrefresh(wnd);
-				resume(joc, scor, &puncte, &mat);
+				resume(joc, scor, &puncte, &mat, com);
 				break;
 			default:
 				endwin();
 				return 0;
 		}
-		/*c = getchar();
-
-		if (tolower(c) == 'q') {
-			break;
-		}*/
-	
-		/* Se determină noua poziție, în funcție de tasta apăsată
-		 * Nu putem depași nrows și ncols, sau linia 0/coloana 0.
-		 */
-			
-		/*switch (tolower(c)) {
-		case 'a':
-			new_row = row;
-			if (col > 0)
-				new_col = col - 1;
-			break;
-		
-		case 'd':
-			new_row = row;
-			if (col + 1 < ncols)
-				new_col = col + 1;
-			break;
-		
-		case 'w':
-			if (row > 0)
-				new_row = row - 1;
-			new_col = col;
-			break;
-
-		case 's':
-			if (row + 1 < nrows)
-				new_row = row + 1;
-			new_col = col;
-			break;
-		}
-
-		/* Se șterge '*' din vechea poziție */
-		/*move(row, col);
-		addch(' ');
-		
-		/* Se adaugă '*' în noua poziție */
-		/*move(new_row, new_col);
-		addch('*');
-		refresh();
-
-		row = new_row;
-		col = new_col;*/
 	}
 
 	/* Se închide fereastra ncurses */	
