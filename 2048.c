@@ -20,13 +20,13 @@
  
 void afis(int *mat[], WINDOW *joc) {
     int i, j;
-	mvwaddch(joc, 1, 2, ACS_ULCORNER);
-	mvwaddch(joc, 1, 30, ACS_URCORNER);
-	mvwaddch(joc, 9, 2, ACS_LLCORNER);
-	mvwaddch(joc, 9, 30, ACS_LRCORNER);
+	mvwaddch(joc, 1, 6, ACS_ULCORNER);
+	mvwaddch(joc, 1, 34, ACS_URCORNER);
+	mvwaddch(joc, 9, 6, ACS_LLCORNER);
+	mvwaddch(joc, 9, 34, ACS_LRCORNER);
 	for (i = 1; i < 11; i += 2) {
-		for (j = 3; j < 30; j++) {
-			if (j == 9 || j == 16 || j == 23) {
+		for (j = 7; j < 34; j++) {
+			if (j == 13 || j == 20 || j == 27) {
 				if (i == 1) {
 					mvwaddch(joc, i, j, ACS_TTEE);
 				}
@@ -40,12 +40,12 @@ void afis(int *mat[], WINDOW *joc) {
 		}
 	}
 	for (i = 2; i < 9; i++) {
-		for (j = 2; j < 31; j += 7) {
+		for (j = 6; j < 37; j += 7) {
 			if (i == 3 || i == 5 || i == 7) {
-				if (j == 2) {
+				if (j == 6) {
 					mvwaddch(joc, i, j, ACS_LTEE);
 				}
-				else if (j == 30) {
+				else if (j == 34) {
 					mvwaddch(joc, i, j, ACS_RTEE);
 				}
 				else {
@@ -60,7 +60,7 @@ void afis(int *mat[], WINDOW *joc) {
 	
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 4; j++) {
-            mvwprintw(joc, i * 2 + 2, j * 7 + 4, "%4d", mat[i][j]);
+            mvwprintw(joc, i * 2 + 2, j * 7 + 8, "%4d", mat[i][j]);
         }
     }
     wrefresh(joc);
@@ -125,18 +125,37 @@ void start(int ***mat) {
 	(*mat)[lin2][col2] = v[rand() % 2];
 }
 
+void data(WINDOW *scor) {
+	time_t aux;
+	char sir[50];
+	struct tm *timp;
+	time(&aux);
+	timp = localtime(&aux);
+	strftime(sir, sizeof(sir), "%d-%m-%Y", timp);
+	mvwprintw(scor, 1, 15, "%s", sir);
+	strftime(sir, sizeof(sir), "%H:%M:%S", timp);
+	mvwprintw(scor, 2, 15, "%s", sir);
+}
+
 void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat) {
-	int c;
+	int c, k = 4, i;
+	char com[4][15];
+	for (i = 0; i < 4; i++) {
+		strcpy(com[i], "");
+	}
+	joc = newwin(20, 41, 5, 15);
+	scor = newwin(9, 29, 15, 21);
+	refresh();
+	*puncte = 0;
+	wmove(joc, 5, 5);
+	wmove(scor, 1, 1);
+	initmat(&(*mat));
+	start(&(*mat));
 	while (FOREVER) {
-		joc = newwin(20,40, 5, 15);
-		scor = newwin(5, 10, 15, 40);
-		refresh();
-		*puncte = 0;
-		wmove(joc, 5, 5);
-		wmove(scor, 1, 1);
-		initmat(&(*mat));
-		start(&(*mat));
 		afis((*mat), joc);
+		mvwprintw(scor, 1, 1, "SCORE: %5d", *puncte);
+		wrefresh(scor);
+		data(scor);
 		box(joc, 0, 0);
 		box(scor, 0, 0);
 		wrefresh(joc);
@@ -146,24 +165,87 @@ void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat) {
 			clear();
 			break;
 		}
+		else if (c == 'w') {
+			for (i = k - 1; i > 0; i--) {
+				strcpy(com[i], com[i - 1]);
+			}
+			strcpy(com[0], "SUS    ");
+		}
+			else if (c == 's') {
+				for(i = k - 1; i > 0; i--) {
+					strcpy(com[i], com[i - 1]);
+				}
+				strcpy(com[0], "JOS    ");
+			}
+				else if (c == 'd') {
+					for(i = k - 1; i > 0; i--) {
+						strcpy(com[i], com[i - 1]);
+					}
+					strcpy(com[0], "DREAPTA");
+				}
+					else if (c == 'a') {
+						for(i = k - 1; i > 0; i--) {
+							strcpy(com[i], com[i - 1]);
+						}
+						strcpy(com[0], "STANGA ");
+					}
+		for (i = 0; i < k; i++) {
+			mvwprintw(scor, i + 3, 5, "%s", com[i]);
+		}
 	}
 }
 
 void resume(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat) {
-	int c;
+	int c, i, k = 4;
+	char com[4][15];
+	for (i = 0; i < 4; i++) {
+		strcpy(com[i], "");
+	}
+	joc = newwin(20, 41, 5, 15);
+	scor = newwin(9, 29, 15, 21);
+	refresh();
+	wmove(joc, 5, 5);
+	wmove(scor, 1, 1);
 	while (FOREVER) {
-		joc = newwin(20,40, 7, 15);
-		scor = newwin(5, 10, 15, 40);
-		refresh();
-		wmove(joc, 5, 5);
-		wmove(scor, 1, 1);
 		afis((*mat), joc);
+		mvwprintw(scor, 1, 1, "SCORE: %5d", *puncte);
+		wrefresh(scor);
+		data(scor);
 		box(joc, 0, 0);
+		box(scor, 0, 0);
 		wrefresh(joc);
+		wrefresh(scor);
 		c = getch();
 		if (c == 'q') {
 			clear();
 			break;
+		}
+		else if (c == 'w') {
+			for (i = k - 1; i > 0; i--) {
+				strcpy(com[i], com[i - 1]);
+			}
+			strcpy(com[0], "SUS    ");
+		}
+			else if (c == 's') {
+				for(i = k - 1; i > 0; i--) {
+					strcpy(com[i], com[i - 1]);
+				}
+				strcpy(com[0], "JOS    ");
+			}
+				else if (c == 'd') {
+					for(i = k - 1; i > 0; i--) {
+						strcpy(com[i], com[i - 1]);
+					}
+					strcpy(com[0], "DREAPTA");
+				}
+					else if (c == 'a') {
+						for(i = k - 1; i > 0; i--) {
+							strcpy(com[i], com[i - 1]);
+						}
+						strcpy(com[0], "STANGA ");
+					}
+		for (i = 0; i < k; i++) {
+			mvwprintw(scor, i + 3, 5, "%s", com[i]);
 		}
 	}
 }
