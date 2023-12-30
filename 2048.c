@@ -1,7 +1,9 @@
 /* Programarea Calculatoarelor, seria CC
  * Tema2 - 2048
  */
+ 
  // !! Pentru aspectul ideal se recomanda jucarea in fullscreen in terminal !!
+
 #include <stdio.h>
 #include <string.h>
 #include <curses.h>
@@ -194,7 +196,46 @@ int win(int *mat[]) {
 			if (mat[i][j] == 0) ok = 0;
 		}
 	}
-	if (ok) return 2;
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 4; j++) {
+			if (i == 0) {
+				if (j < 3) {
+					if (mat[i][j] == mat[i + 1][j] || mat[i][j] == mat[i][j + 1]) {
+						ok = 3;
+					}
+				}
+			}
+			else if (i == 3) {
+				if (j < 3) {
+					if (mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i][j + 1]) {
+						ok = 3;
+					}
+				}
+			}
+				else if (j == 0) {
+					if (i < 3) {
+						if (mat[i][j] == mat[i][j + 1] || mat[i][j] == mat[i + 1][j]) {
+							ok = 3;
+						}
+					}
+				}
+					else if (j == 3) {
+						if (i > 0 && i < 3) {
+							if(mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i][j - 1] || mat[i][j] == mat[i + 1][j]) {
+								ok = 3;
+							}
+						}
+					}
+						else {
+							if (mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i + 1][j]
+								|| mat[i][j] == mat[i][j + 1] || mat[i][j] == mat[i][j - 1]) {
+								ok = 3;
+							}
+						}
+		}
+	}
+	if (ok == 3) return 3;
+	if (ok == 1) return 2;
 	return 0;
 }
 
@@ -502,28 +543,28 @@ void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat, char com[][15]
 				for (i = k - 1; i > 0; i--) {
 					strcpy(com[i], com[i - 1]);
 				}
-				strcpy(com[0], "SUS        ");
+				strcpy(com[0], "SUS         ");
 			}
 				else if (c == 's') {
 					jos(&(*mat), &(*puncte));
 					for(i = k - 1; i > 0; i--) {
 						strcpy(com[i], com[i - 1]);
 					}
-					strcpy(com[0], "JOS        ");
+					strcpy(com[0], "JOS         ");
 				}
 					else if (c == 'd') {
 						dreapta(&(*mat), &(*puncte));
 						for(i = k - 1; i > 0; i--) {
 							strcpy(com[i], com[i - 1]);
 						}
-						strcpy(com[0], "DREAPTA    ");
+						strcpy(com[0], "DREAPTA     ");
 					}
 						else if (c == 'a') {
 							stanga(&(*mat), &(*puncte));
 							for(i = k - 1; i > 0; i--) {
 								strcpy(com[i], com[i - 1]);
 							}
-							strcpy(com[0], "STANGA     ");
+							strcpy(com[0], "STANGA      ");
 						}
 			for (i = 0; i < k; i++) {
 				mvwprintw(scor, i + 4, 5, "%s", com[i]);
