@@ -196,42 +196,44 @@ int win(int *mat[]) {
 			if (mat[i][j] == 0) ok = 0;
 		}
 	}
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 4; j++) {
-			if (i == 0) {
-				if (j < 3) {
-					if (mat[i][j] == mat[i + 1][j] || mat[i][j] == mat[i][j + 1]) {
-						ok = 3;
-					}
-				}
-			}
-			else if (i == 3) {
-				if (j < 3) {
-					if (mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i][j + 1]) {
-						ok = 3;
-					}
-				}
-			}
-				else if (j == 0) {
-					if (i < 3) {
-						if (mat[i][j] == mat[i][j + 1] || mat[i][j] == mat[i + 1][j]) {
+	if (ok == 1) {
+		for (i = 0; i < 4; i++) {
+			for (j = 0; j < 4; j++) {
+				if (i == 0) {
+					if (j < 3) {
+						if (mat[i][j] == mat[i + 1][j] || mat[i][j] == mat[i][j + 1]) {
 							ok = 3;
 						}
 					}
 				}
-					else if (j == 3) {
-						if (i > 0 && i < 3) {
-							if(mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i][j - 1] || mat[i][j] == mat[i + 1][j]) {
+				else if (i == 3) {
+					if (j < 3) {
+						if (mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i][j + 1]) {
+							ok = 3;
+						}
+					}
+				}
+					else if (j == 0) {
+						if (i < 3) {
+							if (mat[i][j] == mat[i][j + 1] || mat[i][j] == mat[i + 1][j]) {
 								ok = 3;
 							}
 						}
 					}
-						else {
-							if (mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i + 1][j]
-								|| mat[i][j] == mat[i][j + 1] || mat[i][j] == mat[i][j - 1]) {
-								ok = 3;
+						else if (j == 3) {
+							if (i > 0 && i < 3) {
+								if(mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i][j - 1] || mat[i][j] == mat[i + 1][j]) {
+									ok = 3;
+								}
 							}
 						}
+							else {
+								if (mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i + 1][j]
+									|| mat[i][j] == mat[i][j + 1] || mat[i][j] == mat[i][j - 1]) {
+									ok = 3;
+								}
+							}
+			}
 		}
 	}
 	if (ok == 3) return 3;
