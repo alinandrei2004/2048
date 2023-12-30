@@ -1,6 +1,7 @@
 /* Programarea Calculatoarelor, seria CC
  * Tema2 - 2048
  */
+ // !! Pentru aspectul ideal se recomanda jucarea in fullscreen in terminal !!
 #include <stdio.h>
 #include <string.h>
 #include <curses.h>
@@ -13,7 +14,7 @@
 #define INIT_ROW 	20
 #define INIT_COL 	20
 #define EMPTY 0
-#define PAUZA 3
+#define PAUZA 5
 
 /* curses.h este necesar pentru biblioteca grafică ncurses
  * ctype.h este necesar pentru funcția tolower - man tolower pentru detalii
@@ -81,7 +82,7 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 			if (i == high) {
 				wattron(wnd, A_REVERSE);
 			}
-			mvwprintw(wnd, i + 1, 1, "%s", variante[i]);
+			mvwprintw(wnd, i + 19, i + 75, "%s", variante[i]);
 			wattroff(wnd, A_REVERSE);
 		}
 		opt = wgetch(wnd);
@@ -501,28 +502,28 @@ void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat, char com[][15]
 				for (i = k - 1; i > 0; i--) {
 					strcpy(com[i], com[i - 1]);
 				}
-				strcpy(com[0], "SUS     ");
+				strcpy(com[0], "SUS        ");
 			}
 				else if (c == 's') {
 					jos(&(*mat), &(*puncte));
 					for(i = k - 1; i > 0; i--) {
 						strcpy(com[i], com[i - 1]);
 					}
-					strcpy(com[0], "JOS     ");
+					strcpy(com[0], "JOS        ");
 				}
 					else if (c == 'd') {
 						dreapta(&(*mat), &(*puncte));
 						for(i = k - 1; i > 0; i--) {
 							strcpy(com[i], com[i - 1]);
 						}
-						strcpy(com[0], "DREAPTA ");
+						strcpy(com[0], "DREAPTA    ");
 					}
 						else if (c == 'a') {
 							stanga(&(*mat), &(*puncte));
 							for(i = k - 1; i > 0; i--) {
 								strcpy(com[i], com[i - 1]);
 							}
-							strcpy(com[0], "STANGA  ");
+							strcpy(com[0], "STANGA     ");
 						}
 			for (i = 0; i < k; i++) {
 				mvwprintw(scor, i + 4, 5, "%s", com[i]);
