@@ -575,7 +575,7 @@ void new_game(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat, char com[][15]
 }
 
 void resume(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat, char com[][15]) {
-	int c, i, k = 4;
+	int c, i, k = 4, dir;
 	WINDOW *castig = initscr();
 	joc = newwin(20, 41, 5, 15);
 	scor = newwin(9, 29, 15, 21);
@@ -583,9 +583,10 @@ void resume(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat, char com[][15]) 
 	wmove(joc, 5, 5);
 	wmove(scor, 1, 1);
 	for (i = 0; i < k; i++) {
-			mvwprintw(scor, i + 3, 5, "%s", com[i]);
+			mvwprintw(scor, i + 4, 5, "%s", com[i]);
 		}
 	while (FOREVER) {
+		timeout(1000 * PAUZA);
 		afis((*mat), joc);
 		mvwprintw(scor, 1, 1, "SCORE: %5d", *puncte);
 		wrefresh(scor);
@@ -615,41 +616,80 @@ void resume(WINDOW *joc, WINDOW *scor, int *puncte, int ***mat, char com[][15]) 
 		wrefresh(joc);
 		wrefresh(scor);
 		c = getch();
-		if (c == 'q') {
-			clear();
-			break;
-		}
-		else if (c == 'w') {
-			sus(&(*mat), &(*puncte));
-			for (i = k - 1; i > 0; i--) {
-				strcpy(com[i], com[i - 1]);
-			}
-			strcpy(com[0], "SUS    ");
-		}
-			else if (c == 's') {
-				jos(&(*mat), &(*puncte));
-				for(i = k - 1; i > 0; i--) {
-					strcpy(com[i], com[i - 1]);
-				}
-				strcpy(com[0], "JOS    ");
-			}
-				else if (c == 'd') {
+		if (c == ERR) {
+			dir = directie((*mat));
+			switch (dir) {
+				case 0:
+					sus(&(*mat), &(*puncte));
+					for (i = k - 1; i > 0; i--) {
+						strcpy(com[i], com[i - 1]);
+					}
+					strcpy(com[0], "SUS_AUTO    ");
+					break;
+				case 1:
+					jos(&(*mat), &(*puncte));
+					for(i = k - 1; i > 0; i--) {
+						strcpy(com[i], com[i - 1]);
+					}
+					strcpy(com[0], "JOS_AUTO    ");
+					break;
+				case 2:
 					dreapta(&(*mat), &(*puncte));
 					for(i = k - 1; i > 0; i--) {
 						strcpy(com[i], com[i - 1]);
 					}
-					strcpy(com[0], "DREAPTA");
+					strcpy(com[0], "DREAPTA_AUTO");
+					break;
+				case 3:
+					stanga(&(*mat), &(*puncte));
+					for(i = k - 1; i > 0; i--) {
+						strcpy(com[i], com[i - 1]);
+					}
+					strcpy(com[0], "STANGA_AUTO ");
+					break;
+			}
+			for (i = 0; i < k; i++) {
+				mvwprintw(scor, i + 4, 5, "%s", com[i]);
+			}
+		}
+		else {
+			if (c == 'q') {
+				clear();
+				break;
+			}
+			else if (c == 'w') {
+				sus(&(*mat), &(*puncte));
+				for (i = k - 1; i > 0; i--) {
+					strcpy(com[i], com[i - 1]);
 				}
-					else if (c == 'a') {
-						stanga(&(*mat), &(*puncte));
+				strcpy(com[0], "SUS    ");
+			}
+				else if (c == 's') {
+					jos(&(*mat), &(*puncte));
+					for(i = k - 1; i > 0; i--) {
+						strcpy(com[i], com[i - 1]);
+					}
+					strcpy(com[0], "JOS    ");
+				}
+					else if (c == 'd') {
+						dreapta(&(*mat), &(*puncte));
 						for(i = k - 1; i > 0; i--) {
 							strcpy(com[i], com[i - 1]);
 						}
-						strcpy(com[0], "STANGA ");
+						strcpy(com[0], "DREAPTA");
 					}
-		for (i = 0; i < k; i++) {
-			mvwprintw(scor, i + 3, 5, "%s", com[i]);
+						else if (c == 'a') {
+							stanga(&(*mat), &(*puncte));
+							for(i = k - 1; i > 0; i--) {
+								strcpy(com[i], com[i - 1]);
+							}
+							strcpy(com[0], "STANGA ");
+						}
+			for (i = 0; i < k; i++) {
+				mvwprintw(scor, i + 3, 5, "%s", com[i]);
+			}
 		}
+		timeout(0);
 	}
 }
 
