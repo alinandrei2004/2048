@@ -23,6 +23,16 @@
  * Inițial, steluța se va afla pe ecran la coordonatele (INIT_ROW, INIT_COL) 
  */
  
+int mat_gol(int *mat[]) {
+	int i, j;
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 4; j++) {
+			if (mat[i][j] != 0) return 1;
+		}
+	}
+	return 0;
+}
+
 void afis(int *mat[], WINDOW *joc) {
     int i, j;
 	mvwaddch(joc, 1, 6, ACS_ULCORNER);
@@ -82,7 +92,11 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 		wclear(wnd);
 		for (i = 0; i < 3; i++) {
 			if (i == high) {
+				mvwaddch(wnd, i + 19, 85, ACS_LARROW);
 				wattron(wnd, A_REVERSE);
+				if (i == 1 && mat_gol(mat) == 0) {
+					wattroff(wnd, A_REVERSE);
+				}
 			}
 			mvwprintw(wnd, i + 19, i + 75, "%s", variante[i]);
 			wattroff(wnd, A_REVERSE);
@@ -475,9 +489,9 @@ void jos(int ***mat, int *puncte, int *flag) {
 }
 
 void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, char com[][15], 
-			int *nr_sus, int *nr_jos, int *nr_stanga, int *nr_dreapta) {
+			int *nr_sus, int *nr_jos, int *nr_stanga, int *nr_dreapta, int *nr_auto) {
 	int c, k = 4, i, dir, ok;
-	*nr_sus = *nr_jos = *nr_stanga = *nr_dreapta = 0;
+	*nr_sus = *nr_jos = *nr_stanga = *nr_dreapta = *nr_auto = 0;
 	WINDOW *castig = initscr();
 	for (i = 0; i < 4; i++) {
 		strcpy(com[i], "");
@@ -494,7 +508,7 @@ void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
 		ok = 0;
 		timeout(1000 * PAUZA);
 		afis((*mat), joc);
-		statistici(stats, *nr_sus, *nr_jos, *nr_stanga, *nr_dreapta);
+		statistici(stats, *nr_sus, *nr_jos, *nr_stanga, *nr_dreapta, *nr_auto);
 		mvwprintw(scor, 1, 1, "SCORE: %5d", *puncte);
 		wrefresh(scor);
 		data(scor);
@@ -528,35 +542,46 @@ void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
 			switch (dir) {
 				case 0:
 					sus(&(*mat), &(*puncte), &ok);
-					for (i = k - 1; i > 0; i--) {
-						strcpy(com[i], com[i - 1]);
+					if (ok) {
+						for (i = k - 1; i > 0; i--) {
+							strcpy(com[i], com[i - 1]);
+						}
+						strcpy(com[0], "SUS_AUTO    ");
 					}
-					strcpy(com[0], "SUS_AUTO    ");
 					break;
 				case 1:
 					jos(&(*mat), &(*puncte), &ok);
-					for(i = k - 1; i > 0; i--) {
-						strcpy(com[i], com[i - 1]);
+					if (ok) {
+						for(i = k - 1; i > 0; i--) {
+							strcpy(com[i], com[i - 1]);
+						}
+						strcpy(com[0], "JOS_AUTO    ");
 					}
-					strcpy(com[0], "JOS_AUTO    ");
 					break;
 				case 2:
 					dreapta(&(*mat), &(*puncte), &ok);
-					for(i = k - 1; i > 0; i--) {
-						strcpy(com[i], com[i - 1]);
+					if (ok) {
+						for(i = k - 1; i > 0; i--) {
+							strcpy(com[i], com[i - 1]);
+						}
+						strcpy(com[0], "DREAPTA_AUTO");
 					}
-					strcpy(com[0], "DREAPTA_AUTO");
 					break;
 				case 3:
 					stanga(&(*mat), &(*puncte), &ok);
-					for(i = k - 1; i > 0; i--) {
-						strcpy(com[i], com[i - 1]);
+					if (ok) {
+						for(i = k - 1; i > 0; i--) {
+							strcpy(com[i], com[i - 1]);
+						}
+						strcpy(com[0], "STANGA_AUTO ");
 					}
-					strcpy(com[0], "STANGA_AUTO ");
 					break;
 			}
 			for (i = 0; i < k; i++) {
 				mvwprintw(scor, i + 4, 5, "%s", com[i]);
+			}
+			if (ok) {
+				(*nr_auto)++;
 			}
 		}
 		else {
@@ -613,7 +638,7 @@ void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
 }
 
 void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, char com[][15],
-			int *nr_sus, int *nr_jos, int *nr_stanga, int *nr_dreapta) {
+			int *nr_sus, int *nr_jos, int *nr_stanga, int *nr_dreapta, int *nr_auto) {
 	int c, i, k = 4, dir, ok;
 	WINDOW *castig = initscr();
 	joc = newwin(20, 41, 5, 15);
@@ -662,35 +687,46 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 			switch (dir) {
 				case 0:
 					sus(&(*mat), &(*puncte), &ok);
-					for (i = k - 1; i > 0; i--) {
-						strcpy(com[i], com[i - 1]);
+					if (ok) {
+						for (i = k - 1; i > 0; i--) {
+							strcpy(com[i], com[i - 1]);
+						}
+						strcpy(com[0], "SUS_AUTO    ");
 					}
-					strcpy(com[0], "SUS_AUTO    ");
 					break;
 				case 1:
 					jos(&(*mat), &(*puncte), &ok);
-					for(i = k - 1; i > 0; i--) {
-						strcpy(com[i], com[i - 1]);
+					if (ok) {
+						for(i = k - 1; i > 0; i--) {
+							strcpy(com[i], com[i - 1]);
+						}
+						strcpy(com[0], "JOS_AUTO    ");
 					}
-					strcpy(com[0], "JOS_AUTO    ");
 					break;
 				case 2:
 					dreapta(&(*mat), &(*puncte), &ok);
-					for(i = k - 1; i > 0; i--) {
-						strcpy(com[i], com[i - 1]);
+					if (ok) {
+						for(i = k - 1; i > 0; i--) {
+							strcpy(com[i], com[i - 1]);
+						}
+						strcpy(com[0], "DREAPTA_AUTO");
 					}
-					strcpy(com[0], "DREAPTA_AUTO");
 					break;
 				case 3:
 					stanga(&(*mat), &(*puncte), &ok);
-					for(i = k - 1; i > 0; i--) {
-						strcpy(com[i], com[i - 1]);
+					if (ok) {
+						for(i = k - 1; i > 0; i--) {
+							strcpy(com[i], com[i - 1]);
+						}
+						strcpy(com[0], "STANGA_AUTO ");
 					}
-					strcpy(com[0], "STANGA_AUTO ");
 					break;
 			}
 			for (i = 0; i < k; i++) {
 				mvwprintw(scor, i + 4, 5, "%s", com[i]);
+			}
+			if (ok) {
+				(*nr_auto)++;
 			}
 		}
 		else {
@@ -754,7 +790,7 @@ void leg(WINDOW *legenda) {
 	box(legenda, 0, 0);
 	wrefresh(legenda);
 }
-void statistici(WINDOW *stats, int nr_sus, int nr_jos, int nr_stanga, int nr_dreapta) {
+void statistici(WINDOW *stats, int nr_sus, int nr_jos, int nr_stanga, int nr_dreapta, int nr_auto) {
 	mvwaddstr(stats, 1, 12, "STATS");
 
 	mvwaddstr(stats, 3, 11, "SUS:");
@@ -770,6 +806,8 @@ void statistici(WINDOW *stats, int nr_sus, int nr_jos, int nr_stanga, int nr_dre
 	mvwprintw(stats, 6, 15, "%3d", nr_dreapta);
 
 	mvwaddstr(stats, 7, 10, "AUTO:");
+	mvwprintw(stats, 7, 15, "%3d", nr_auto);
+
 	mvwaddstr(stats, 8, 10, "UNDO:");
 	box(stats, 0, 0);
 	wrefresh(stats);
@@ -820,15 +858,16 @@ int main(void)
 				werase(wnd);
 				wrefresh(wnd);
 				leg(legenda);
-				new_game(joc, scor, stats, &puncte, &mat, com, &nr_sus, &nr_jos, &nr_stanga, &nr_dreapta);
+				new_game(joc, scor, stats, &puncte, &mat, com, &nr_sus, &nr_jos, &nr_stanga, &nr_dreapta, &nr_auto);
 				refresh();
 				break;
 			case 1:
-				werase(wnd);
-				wrefresh(wnd);
-				//statistici(stats, nr_sus);
-				leg(legenda);
-				resume(joc, scor, stats, &puncte, &mat, com, &nr_sus, &nr_jos, &nr_stanga, &nr_dreapta);
+				if (mat_gol(mat) == 1) {
+					werase(wnd);
+					wrefresh(wnd);
+					leg(legenda);
+					resume(joc, scor, stats, &puncte, &mat, com, &nr_sus, &nr_jos, &nr_stanga, &nr_dreapta, &nr_auto);
+				}
 				break;
 			default:
 				endwin();
