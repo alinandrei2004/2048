@@ -22,7 +22,17 @@
  * ctype.h este necesar pentru funcția tolower - man tolower pentru detalii
  * Inițial, steluța se va afla pe ecran la coordonatele (INIT_ROW, INIT_COL) 
  */
- 
+
+void culori(){
+	init_pair(1, COLOR_YELLOW, COLOR_BLACK);
+	init_pair(2, COLOR_RED, COLOR_BLACK);
+	init_pair(3, COLOR_GREEN, COLOR_BLACK);
+	init_pair(4, COLOR_BLUE, COLOR_BLACK);
+	init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
+	init_pair(6, COLOR_CYAN, COLOR_BLACK);
+	init_pair(11, COLOR_WHITE, COLOR_BLACK);
+}
+
 int mat_gol(int *mat[]) {
 	int i, j;
 	for (i = 0; i < 4; i++) {
@@ -31,6 +41,15 @@ int mat_gol(int *mat[]) {
 		}
 	}
 	return 0;
+}
+
+int putere(int x) {
+	int k = 0;
+	while (x > 1) {
+		x /= 2;
+		k++;
+	}
+	return k;
 }
 
 void afis(int *mat[], WINDOW *joc) {
@@ -72,14 +91,15 @@ void afis(int *mat[], WINDOW *joc) {
 			}
 		}
 	}
-	
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 4; j++) {
 			if (mat[i][j] == 0) {
 				mvwprintw(joc, i * 2 + 2, j * 7 + 8, "    ");
 			}
 			else {
+				wattron(joc, COLOR_PAIR(putere(mat[i][j]) % 6));
             	mvwprintw(joc, i * 2 + 2, j * 7 + 8, "%4d", mat[i][j]);
+				wattroff(joc, COLOR_PAIR(putere(mat[i][j]) % 6));
 			}
         }
     }
@@ -504,10 +524,14 @@ void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
 	wmove(scor, 1, 1);
 	initmat(&(*mat));
 	start(&(*mat));
+	wattron(joc, COLOR_PAIR(11));
+	wattron(scor, COLOR_PAIR(1));
+	wattron(stats, COLOR_PAIR(5));
 	while (FOREVER) {
 		ok = 0;
 		timeout(1000 * PAUZA);
 		afis((*mat), joc);
+		wattron(joc, COLOR_PAIR(11));
 		statistici(stats, *nr_sus, *nr_jos, *nr_stanga, *nr_dreapta, *nr_auto);
 		mvwprintw(scor, 1, 1, "SCORE: %5d", *puncte);
 		wrefresh(scor);
@@ -782,6 +806,7 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 	}
 }
 void leg(WINDOW *legenda) {
+	wattron(legenda, COLOR_PAIR(6));
 	mvwaddstr(legenda, 1, 2, "Deplasarea se face cu tastele:");
 	mvwaddstr(legenda, 2, 3, "A - Stanga");
 	mvwaddstr(legenda, 3, 3, "D - Dreapta");
@@ -849,7 +874,9 @@ int main(void)
 	stats = newwin(10, 30, 15, 72);
 	/* Se reflectă schimbările pe ecran */
 	refresh();
-
+	start_color();
+	culori();
+	attron(COLOR_PAIR(1));
 	/* Rămânem în while până când se primește tasta q */
 	while (FOREVER) {
 		x = menu(wnd, variante, joc, mat, scor, &puncte);
