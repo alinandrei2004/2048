@@ -670,6 +670,7 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 	refresh();
 	wmove(joc, 5, 5);
 	wmove(scor, 1, 1);
+	wattron(scor, COLOR_PAIR(1));
 	for (i = 0; i < k; i++) {
 			mvwprintw(scor, i + 4, 5, "%s", com[i]);
 		}
@@ -679,6 +680,7 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 		afis((*mat), joc);
 		statistici(stats, *nr_sus, *nr_jos, *nr_stanga, *nr_dreapta);
 		mvwprintw(scor, 1, 1, "SCORE: %5d", *puncte);
+		wattron(scor, COLOR_PAIR(1));
 		wrefresh(scor);
 		data(scor);
 		if (win(*mat) == 1) {
