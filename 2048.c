@@ -125,14 +125,13 @@ int directie(int *mat[]) {
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < 3; j++) {
 			k = j + 1;
-			while (mat[i][k] == 0) {
+			while (mat[i][k] == 0 && k < 3) {
 				k++;
 			}
 			if (mat[i][j] == mat[i][k] && mat[i][j] != 0) {
 				nr++; 
 				j = k;
 			}
-			//j = k;
 		}
 	}
 	if (nr > maxim) {
@@ -143,9 +142,13 @@ int directie(int *mat[]) {
 	nr = 0;
 	for (i = 0; i < 4; i++) {
 		for (j = 3; j > 0; j--) {
-			if (mat[i][j] == mat[i][j - 1] && mat[i][j] != 0) {
+			k = j - 1;
+			while (mat[i][k] == 0 && k > 0) {
+				k--;
+			}
+			if (mat[i][j] == mat[i][k] && mat[i][j] != 0) {
 				nr++;
-				j--;
+				j = k;
 			}
 		}
 	}
@@ -157,9 +160,13 @@ int directie(int *mat[]) {
 	nr = 0;
 	for (i = 0; i < 4; i++) {
 		for (j = 3; j > 0; j--) {
-			if (mat[j][i] == mat[j - 1][i] && mat[j][i] != 0) {
+			k = j - 1;
+			while (mat[k][i] == 0 && k > 0) {
+				k--;
+			}
+			if (mat[j][i] == mat[k][i] && mat[j][i] != 0) {
 				nr++;
-				j--;
+				j = k;
 			}
 		}
 	}
@@ -171,9 +178,13 @@ int directie(int *mat[]) {
 	nr = 0;
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < 3; j++) {
-			if (mat[j][i] == mat[j + 1][i] && mat[j][i] !=0) {
+			k = j + 1;
+			while (mat[k][i] == 0 && k < 3) {
+				k++;
+			}
+			if (mat[j][i] == mat[k][i] && mat[j][i] !=0) {
 				nr++;
-				j++;
+				j = k;
 			}
 		}
 	}
