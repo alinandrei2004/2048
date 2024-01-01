@@ -559,6 +559,7 @@ void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
 		data(scor);
 		if (win(*mat) == 1) {
 			castig = newwin(3, 14, 1, 28);
+			wattron(castig, COLOR_PAIR(2));
         	box(castig, 0, 0);
         	mvwprintw(castig, 1, 3, "YOU WON!");
         	wrefresh(castig);
@@ -569,6 +570,7 @@ void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
 		}
 		else if (win(*mat) == 2) {
 			castig = newwin(3, 14, 1, 28);
+			wattron(castig, COLOR_PAIR(2));
         	box(castig, 0, 0);
         	mvwprintw(castig, 1, 2, "GAME OVER!");
         	wrefresh(castig);
@@ -749,6 +751,7 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 		data(scor);
 		if (win(*mat) == 1) {
 			castig = newwin(3, 14, 1, 28);
+			wattron(castig, COLOR_PAIR(2));
         	box(castig, 0, 0);
         	mvwprintw(castig, 1, 3, "YOU WON!");
         	wrefresh(castig);
@@ -759,6 +762,7 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 		}
 		else if (win(*mat) == 2) {
 			castig = newwin(3, 14, 1, 28);
+			wattron(castig, COLOR_PAIR(2));
         	box(castig, 0, 0);
         	mvwprintw(castig, 1, 2, "GAME OVER!");
         	wrefresh(castig);
