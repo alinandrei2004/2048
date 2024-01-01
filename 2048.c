@@ -20,9 +20,14 @@
 
 /* curses.h este necesar pentru biblioteca grafică ncurses
  * ctype.h este necesar pentru funcția tolower - man tolower pentru detalii
- * Inițial, steluța se va afla pe ecran la coordonatele (INIT_ROW, INIT_COL) 
+ * string.h este necesar pentru prelucrarea sirurilor de caractere
+ * stdlib.h este necesar pentru a putea aloca dinamic
+ * time.h este necesar pentru a putea genera numere random
+ * unistd.h este necesar pentru optiunea de sleep si pentru a putea lasa
+	calculatorul sa "gandeasca" singur o miscare
  */
 
+/* functie pentru initializarea perechilor de culori fg si bg */
 void culori(){
 	init_pair(1, COLOR_YELLOW, COLOR_BLACK);
 	init_pair(2, COLOR_RED, COLOR_BLACK);
@@ -33,6 +38,7 @@ void culori(){
 	init_pair(11, COLOR_WHITE, COLOR_BLACK);
 }
 
+/* functie care verifica daca matricea este goala / are doar valori = 0 */
 int mat_gol(int *mat[]) {
 	int i, j;
 	for (i = 0; i < 4; i++) {
@@ -43,6 +49,7 @@ int mat_gol(int *mat[]) {
 	return 0;
 }
 
+/* calculam puterea la care se afla 2 */
 int putere(int x) {
 	int k = 0;
 	while (x > 1) {
@@ -52,12 +59,15 @@ int putere(int x) {
 	return k;
 }
 
+/* functie de afisare a tablei de joc si a numerelor din matrice */
 void afis(int *mat[], WINDOW *joc) {
     int i, j;
+	// desenam colturile tablei
 	mvwaddch(joc, 1, 6, ACS_ULCORNER);
 	mvwaddch(joc, 1, 34, ACS_URCORNER);
 	mvwaddch(joc, 9, 6, ACS_LLCORNER);
 	mvwaddch(joc, 9, 34, ACS_LRCORNER);
+	// desenam restul tablei
 	for (i = 1; i < 11; i += 2) {
 		for (j = 7; j < 34; j++) {
 			if (j == 13 || j == 20 || j == 27) {
@@ -91,6 +101,7 @@ void afis(int *mat[], WINDOW *joc) {
 			}
 		}
 	}
+	// afisam numerele din matrice in culori
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 4; j++) {
 			if (mat[i][j] == 0) {
@@ -106,8 +117,10 @@ void afis(int *mat[], WINDOW *joc) {
     wrefresh(joc);
 }
 
+/* functie care verifica daca jocul a fost castigat, pierdut sau continua */
 int win(int *mat[]) {
 	int i, j, ok = 1;
+	// verificare conditie de castig
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < 4; j++) {
 			if (mat[i][j] == 2048) { 
@@ -115,11 +128,13 @@ int win(int *mat[]) {
 			}
 		}
 	}
+	// verificare conditii de continuare
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < 4; j++) {
 			if (mat[i][j] == 0) ok = 0;
 		}
 	}
+	// in cazul unei table pline se verifica daca mai sunt mutari posibile
 	if (ok == 1) {
 		for (i = 0; i < 4; i++) {
 			for (j = 0; j < 4; j++) {
@@ -165,6 +180,7 @@ int win(int *mat[]) {
 	return 0;
 }
 
+/* functie pentru meniu de start */
 int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int *puncte) {
 	int opt, i, high = 0;
 	while (FOREVER) {
@@ -172,7 +188,11 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 		for (i = 0; i < 3; i++) {
 			if (i == high) {
 				mvwaddch(wnd, i + 19, 85, ACS_LARROW);
+				// highlight pe optiunea actuala
 				wattron(wnd, A_REVERSE);
+				/* in cazul in care nu s-a inceput inca jocul sau acesta a
+					fost pierdut optiunea de resume nu va fi evidentiata
+					si nici accesibila */
 				if (i == 1 && (mat_gol(mat) == 0 || win(mat) == 1 || win(mat) == 2)) {
 					wattroff(wnd, A_REVERSE);
 				}
@@ -180,6 +200,7 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 			mvwprintw(wnd, i + 19, i + 75, "%s", variante[i]);
 			wattroff(wnd, A_REVERSE);
 		}
+		// deplasare cu sageti in meniu
 		opt = wgetch(wnd);
 		switch (opt) {
 			case KEY_UP:
@@ -197,6 +218,7 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 			default:
 				break;
 		}
+		// selectam cu enter
 		if (opt == 10) {
 			break;
 		}
@@ -204,6 +226,8 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 	return high;
 }
 
+/* functie de initializare a matricei de joc si a vectorului de matrici
+	folosit pentru undo */
 void initmat(int ***mat, int ****undo) {
 	int i;
 	*mat = (int **)calloc(4, sizeof(int *));
@@ -217,9 +241,11 @@ void initmat(int ***mat, int ****undo) {
 	}
 }
 
+/* functie pentru calculul directiei favorabile
+	este utilizata in cazul in care calculatorul decide singur mutarea */
 int directie(int *mat[]) {
 	int nr = 0, maxim = 0, i, j, dir = 0, k;
-	//dreapta
+	// verificare in dreapta
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < 3; j++) {
 			k = j + 1;
@@ -236,7 +262,7 @@ int directie(int *mat[]) {
 		maxim = nr;
 		dir = 2; 
 	}
-	//stanga
+	// verificare in stanga
 	nr = 0;
 	for (i = 0; i < 4; i++) {
 		for (j = 3; j > 0; j--) {
@@ -254,7 +280,7 @@ int directie(int *mat[]) {
 		maxim = nr;
 		dir = 3;
 	}
-	//sus
+	// verificare in sus
 	nr = 0;
 	for (i = 0; i < 4; i++) {
 		for (j = 3; j > 0; j--) {
@@ -272,7 +298,7 @@ int directie(int *mat[]) {
 		maxim = nr;
 		dir = 0;
 	}
-	//jos
+	// verificare in jos
 	nr = 0;
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < 3; j++) {
@@ -290,12 +316,15 @@ int directie(int *mat[]) {
 		maxim = nr;
 		dir = 1;
 	}
+	// daca nu exista o mutare favorabila, calculatorul va muta random
 	if (maxim == 0) {
 		dir = rand() % 4;
 	}
 	return dir;
 }
 
+/* functie care plaseaza initial pe pozitii aleatoare 2 numere din multimea
+	{2, 4} */
 void start(int ***mat) {
 	int v[] = {2, 4};
 	srand(time(NULL));
@@ -312,6 +341,7 @@ void start(int ***mat) {
 	(*mat)[lin2][col2] = v[rand() % 2];
 }
 
+/* functie care adauga un element din multimea {2, 4} pe o pozitie aleatoare */
 void addrand(int ***mat) {
 	int v[] = {2, 4};
 	srand(time(NULL));
@@ -325,6 +355,7 @@ void addrand(int ***mat) {
 	(*mat)[lin][col] = v[rand() % 2];
 }
 
+/* functie pentru afisarea datei si orei curente */
 void data(WINDOW *scor) {
 	time_t aux;
 	char sir[50];
@@ -337,6 +368,7 @@ void data(WINDOW *scor) {
 	mvwprintw(scor, 2, 15, "%s", sir);
 }
 
+/* functie pentru deplasarea in stanga */
 void stanga(int ***mat, int *puncte, int *flag) {
 	int i, j, k, ok = 0;
 	for (i = 0; i < 4; i++) {
@@ -381,6 +413,7 @@ void stanga(int ***mat, int *puncte, int *flag) {
 	}
 }
 
+/* functie pentru deplasarea in dreapta */
 void dreapta(int ***mat, int *puncte, int *flag) {
 	int i, j, k, ok = 0;
 	for (i = 0; i < 4; i++) {
@@ -425,6 +458,7 @@ void dreapta(int ***mat, int *puncte, int *flag) {
 	}
 }
 
+/* functie pentru deplasarea in sus */
 void sus(int ***mat, int *puncte, int *flag) {
 	int i, j, k, ok = 0;
 	for (i = 0; i < 4; i++) {
@@ -469,6 +503,7 @@ void sus(int ***mat, int *puncte, int *flag) {
 	}
 }
 
+/* functie pentru deplasarea in jos */
 void jos(int ***mat, int *puncte, int *flag) {
 	int i, j, k, ok = 0;
 	for (i = 0; i < 4; i++) {
@@ -513,6 +548,7 @@ void jos(int ***mat, int *puncte, int *flag) {
 	}
 }
 
+/* functie pentru copierea matricei de joc in vectorul de matrici undo */
 void copy(int ****undo, int *n, int *mat[]) {
 	int i, j;
 	for (i = 0; i < 4; i++) {
@@ -528,6 +564,7 @@ void copy(int ****undo, int *n, int *mat[]) {
 	}
 }
 
+/* functie pentru afisarea statisticilor in timp real */
 void statistici(WINDOW *stats, int nr_sus, int nr_jos, int nr_stanga, int nr_dreapta, int nr_auto, int nr_undo) {
 	mvwaddstr(stats, 1, 12, "STATS");
 
@@ -552,6 +589,7 @@ void statistici(WINDOW *stats, int nr_sus, int nr_jos, int nr_stanga, int nr_dre
 	wrefresh(stats);
 }
 
+/* functie pentru optiunea new game din meniu */
 void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, char com[][15], 
 			int *nr_sus, int *nr_jos, int *nr_stanga, int *nr_dreapta, int *nr_auto, int *nr_undo, int ****undo, int *n) {
 	int c, k = 4, i, j, dir, ok;
@@ -565,15 +603,15 @@ void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
 	scor = newwin(9, 29, 15, 21);
 	refresh();
 	*puncte = 0;
-	wmove(joc, 5, 5);
-	wmove(scor, 1, 1);
 	initmat(&(*mat), &(*undo));
 	start(&(*mat));
+	// se atribuie culori ferestrelor
 	wattron(joc, COLOR_PAIR(11));
 	wattron(scor, COLOR_PAIR(1));
 	wattron(stats, COLOR_PAIR(5));
 	while (FOREVER) {
 		ok = 0;
+		// se initiaza asteptarea de 5 secunde a unei miscari
 		timeout(1000 * PAUZA);
 		afis((*mat), joc);
 		wattron(joc, COLOR_PAIR(11));
@@ -581,6 +619,7 @@ void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
 		mvwprintw(scor, 1, 1, "SCORE: %5d", *puncte);
 		wrefresh(scor);
 		data(scor);
+		// se verifica daca jocul este castigat sau pierdut
 		if (win(*mat) == 1) {
 			castig = newwin(3, 14, 1, 28);
 			wattron(castig, COLOR_PAIR(2));
@@ -608,6 +647,7 @@ void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
 		wrefresh(joc);
 		wrefresh(scor);
 		c = getch();
+		// daca trec 5 secunde calculatorul va face singur o mutare
 		if (c == ERR) {
 			dir = directie((*mat));
 			switch (dir) {
@@ -743,14 +783,19 @@ void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
 									(*n)--;
 								}
 							}
+			// afisam mutarile in tabela de scor
 			for (i = 0; i < k; i++) {
 				mvwprintw(scor, i + 4, 5, "%s", com[i]);
 			}
 		}
+		// resetam asteptarea unei miscari
 		timeout(0);
 	}
 }
 
+
+/* functie pentru optiunea de resume, similara new_game
+	jocul se reia de unde a fost lasat */
 void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, char com[][15],
 			int *nr_sus, int *nr_jos, int *nr_stanga, int *nr_dreapta, int *nr_auto, int *nr_undo, int ****undo, int *n) {
 	int c, i, j, k = 4, dir, ok;
@@ -761,6 +806,7 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 	wmove(joc, 5, 5);
 	wmove(scor, 1, 1);
 	wattron(scor, COLOR_PAIR(1));
+	// se afiseaza ultimele mutari
 	for (i = 0; i < k; i++) {
 			mvwprintw(scor, i + 4, 5, "%s", com[i]);
 		}
@@ -942,6 +988,8 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 		timeout(0);
 	}
 }
+
+/* functie pentru tabela lengenda */
 void leg(WINDOW *legenda) {
 	wattron(legenda, COLOR_PAIR(6));
 	mvwaddstr(legenda, 1, 2, "Deplasarea se face cu tastele:");
@@ -970,22 +1018,16 @@ int main(void)
 	WINDOW *wnd = initscr(), *joc = initscr(), *scor = initscr();
 	WINDOW *legenda = initscr(), *stats = initscr();
 	initmat(&mat, &undo);
-	/* getmaxyx - este un macro, nu o funcție, așă că nu avem adresă la parametri */
-	/* Se va reține în nrows și ncols numărul maxim de linii și coloane */
-
 	/* Se șterge ecranul */
 	clear();
 	/* Se inhibă afișarea caracterelor introduse de la tastatură */
 	noecho();
 	/* Caracterele introduse sunt citite imediat - fără 'buffering' */
 	cbreak();
-
 	/* Se ascunde cursorul */	
 	curs_set(0);
-
 	//folosim sageti pentru deplasare
 	keypad(wnd, true);
-
 	legenda = newwin(7, 34, 5, 70);
 	stats = newwin(10, 30, 15, 72);
 	/* Se reflectă schimbările pe ecran */
