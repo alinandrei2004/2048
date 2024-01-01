@@ -106,6 +106,65 @@ void afis(int *mat[], WINDOW *joc) {
     wrefresh(joc);
 }
 
+int win(int *mat[]) {
+	int i, j, ok = 1;
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 4; j++) {
+			if (mat[i][j] == 2048) { 
+				return 1;
+			}
+		}
+	}
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 4; j++) {
+			if (mat[i][j] == 0) ok = 0;
+		}
+	}
+	if (ok == 1) {
+		for (i = 0; i < 4; i++) {
+			for (j = 0; j < 4; j++) {
+				if (i == 0) {
+					if (j < 3) {
+						if (mat[i][j] == mat[i + 1][j] || mat[i][j] == mat[i][j + 1]) {
+							ok = 3;
+						}
+					}
+				}
+				else if (i == 3) {
+					if (j < 3) {
+						if (mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i][j + 1]) {
+							ok = 3;
+						}
+					}
+				}
+					else if (j == 0) {
+						if (i < 3) {
+							if (mat[i][j] == mat[i][j + 1] || mat[i][j] == mat[i + 1][j]) {
+								ok = 3;
+							}
+						}
+					}
+						else if (j == 3) {
+							if (i > 0 && i < 3) {
+								if(mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i][j - 1] || mat[i][j] == mat[i + 1][j]) {
+									ok = 3;
+								}
+							}
+						}
+							else {
+								if (mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i + 1][j]
+									|| mat[i][j] == mat[i][j + 1] || mat[i][j] == mat[i][j - 1]) {
+									ok = 3;
+								} 
+							}
+			}
+		}
+	}
+	if (ok == 3) return 3;
+	if (ok == 1) return 2;
+	return 0;
+}
+
 int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int *puncte) {
 	int opt, i, high = 0;
 	while (FOREVER) {
@@ -146,7 +205,7 @@ int menu(WINDOW *wnd, char *variante[], WINDOW *joc, int **mat, WINDOW *scor,int
 }
 
 void initmat(int ***mat, int ****undo) {
-	int i, j;
+	int i;
 	*mat = (int **)calloc(4, sizeof(int *));
 	for (i = 0; i < 4; i++) {
 		(*mat)[i] = (int *) calloc (4, sizeof(int));
@@ -235,65 +294,6 @@ int directie(int *mat[]) {
 		dir = rand() % 4;
 	}
 	return dir;
-}
-
-int win(int *mat[]) {
-	int i, j, ok = 1;
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 4; j++) {
-			if (mat[i][j] == 2048) { 
-				return 1;
-			}
-		}
-	}
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 4; j++) {
-			if (mat[i][j] == 0) ok = 0;
-		}
-	}
-	if (ok == 1) {
-		for (i = 0; i < 4; i++) {
-			for (j = 0; j < 4; j++) {
-				if (i == 0) {
-					if (j < 3) {
-						if (mat[i][j] == mat[i + 1][j] || mat[i][j] == mat[i][j + 1]) {
-							ok = 3;
-						}
-					}
-				}
-				else if (i == 3) {
-					if (j < 3) {
-						if (mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i][j + 1]) {
-							ok = 3;
-						}
-					}
-				}
-					else if (j == 0) {
-						if (i < 3) {
-							if (mat[i][j] == mat[i][j + 1] || mat[i][j] == mat[i + 1][j]) {
-								ok = 3;
-							}
-						}
-					}
-						else if (j == 3) {
-							if (i > 0 && i < 3) {
-								if(mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i][j - 1] || mat[i][j] == mat[i + 1][j]) {
-									ok = 3;
-								}
-							}
-						}
-							else {
-								if (mat[i][j] == mat[i - 1][j] || mat[i][j] == mat[i + 1][j]
-									|| mat[i][j] == mat[i][j + 1] || mat[i][j] == mat[i][j - 1]) {
-									ok = 3;
-								} 
-							}
-			}
-		}
-	}
-	if (ok == 3) return 3;
-	if (ok == 1) return 2;
-	return 0;
 }
 
 void start(int ***mat) {
@@ -526,6 +526,30 @@ void copy(int ****undo, int *n, int *mat[]) {
 	for (i = 0; i < 4; i++) {
 		(*undo)[*n - 1][i] = (int *)calloc(4, sizeof(int));
 	}
+}
+
+void statistici(WINDOW *stats, int nr_sus, int nr_jos, int nr_stanga, int nr_dreapta, int nr_auto, int nr_undo) {
+	mvwaddstr(stats, 1, 12, "STATS");
+
+	mvwaddstr(stats, 3, 11, "SUS:");
+	mvwprintw(stats, 3, 15, "%3d", nr_sus);
+
+	mvwaddstr(stats, 4, 11, "JOS:");
+	mvwprintw(stats, 4, 15, "%3d", nr_jos);
+
+	mvwaddstr(stats, 5, 8, "STANGA:");
+	mvwprintw(stats, 5, 15, "%3d", nr_stanga);
+
+	mvwaddstr(stats, 6, 7, "DREAPTA:");
+	mvwprintw(stats, 6, 15, "%3d", nr_dreapta);
+
+	mvwaddstr(stats, 7, 10, "AUTO:");
+	mvwprintw(stats, 7, 15, "%3d", nr_auto);
+
+	mvwaddstr(stats, 8, 10, "UNDO:");
+	mvwprintw(stats, 8, 15, "%3d", nr_undo);
+	box(stats, 0, 0);
+	wrefresh(stats);
 }
 
 void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, char com[][15], 
@@ -852,7 +876,7 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 					for (i = k - 1; i > 0; i--) {
 						strcpy(com[i], com[i - 1]);
 					}
-					strcpy(com[0], "SUS    ");
+					strcpy(com[0], "SUS         ");
 				}
 				else {
 					(*n)--;
@@ -866,7 +890,7 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 						for(i = k - 1; i > 0; i--) {
 							strcpy(com[i], com[i - 1]);
 						}
-						strcpy(com[0], "JOS    ");
+						strcpy(com[0], "JOS         ");
 					}
 					else {
 						(*n)--;
@@ -880,7 +904,7 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 							for(i = k - 1; i > 0; i--) {
 								strcpy(com[i], com[i - 1]);
 							}
-							strcpy(com[0], "DREAPTA");
+							strcpy(com[0], "DREAPTA     ");
 						}
 						else {
 							(*n)--;
@@ -894,7 +918,7 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat, c
 								for(i = k - 1; i > 0; i--) {
 									strcpy(com[i], com[i - 1]);
 								}
-								strcpy(com[0], "STANGA ");
+								strcpy(com[0], "STANGA      ");
 							}
 							else {
 								(*n)--;
@@ -928,34 +952,11 @@ void leg(WINDOW *legenda) {
 	box(legenda, 0, 0);
 	wrefresh(legenda);
 }
-void statistici(WINDOW *stats, int nr_sus, int nr_jos, int nr_stanga, int nr_dreapta, int nr_auto, int nr_undo) {
-	mvwaddstr(stats, 1, 12, "STATS");
 
-	mvwaddstr(stats, 3, 11, "SUS:");
-	mvwprintw(stats, 3, 15, "%3d", nr_sus);
-
-	mvwaddstr(stats, 4, 11, "JOS:");
-	mvwprintw(stats, 4, 15, "%3d", nr_jos);
-
-	mvwaddstr(stats, 5, 8, "STANGA:");
-	mvwprintw(stats, 5, 15, "%3d", nr_stanga);
-
-	mvwaddstr(stats, 6, 7, "DREAPTA:");
-	mvwprintw(stats, 6, 15, "%3d", nr_dreapta);
-
-	mvwaddstr(stats, 7, 10, "AUTO:");
-	mvwprintw(stats, 7, 15, "%3d", nr_auto);
-
-	mvwaddstr(stats, 8, 10, "UNDO:");
-	mvwprintw(stats, 8, 15, "%3d", nr_undo);
-	box(stats, 0, 0);
-	wrefresh(stats);
-}
 int main(void)
 {
 	int **mat, ***undo;
-	int row = INIT_ROW, col = INIT_COL, new_row, new_col;
-	int nrows, ncols, i, x, puncte = 0, n;
+	int i, x, puncte = 0, n;
 	int nr_sus, nr_jos, nr_stanga, nr_dreapta, nr_auto, nr_undo;
 	char *variante[] = {"New Game", "Resume", "Quit"};
 	char com[4][15];
@@ -971,7 +972,6 @@ int main(void)
 	initmat(&mat, &undo);
 	/* getmaxyx - este un macro, nu o funcție, așă că nu avem adresă la parametri */
 	/* Se va reține în nrows și ncols numărul maxim de linii și coloane */
-	getmaxyx(wnd, nrows, ncols);
 
 	/* Se șterge ecranul */
 	clear();
