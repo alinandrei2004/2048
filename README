@@ -5,3 +5,80 @@ Tema2 - 2048
 
 Pentru compilare: make
 Pentru rulare: make run
+
+ # Timp de realizare: 16 ore
+
+ # Navigare in meniu: se utilizeaza sagetile (sus, jos).
+
+ # Navigare in tabla de joc: se utilizeaza tastele w, a, s, d.
+
+    Inca de la rularea programului se poate observa meniul de start, unde
+optiunea "Resume" este initial inaccesibila, deoarece nu s-a inceput un joc.
+Dupa inceperea unui joc, apar: tabla de joc, tabela de scor, o legenda ce
+contine informatii despre deplasari si o tabela de statistici. Pe masura ce
+jucatorul face diferite mutari, acestea apar in tabela de scor, scorul este
+actualizat, la fel si statisticile. Jocul se termina atunci cand se genereaza
+numarul 2048 sau in cazul in care nu mai exista mutari posibile, matricea fiind
+plina. In acest caz apare un mesaj de "YOU WIN!" sau "GAME OVER!". Dupa 
+terminarea unui joc, optiunea "Resume" este din nou inaccesibila, jucatorul
+avand posibilitatea sa iasa din joc apasand tasta 'q'; atunci el poate utiliza
+optiunea "Resume". 
+    Daca jucatorul nu stie ce mutare sa faca sau asteapta 5 secunde, jocul va
+muta singur in cea mai favorabila parte, sau random in cazul in care nu exista
+o mutare favorabila.
+
+   # Optiunile jucatorului sunt:
+ 
+ * Deplasare in sus     -> 'w'
+ * Deplasare in jos     -> 's'
+ * Deplasare in stanga  -> 'a'
+ * Deplasare in dreapta -> 'd'
+ * Undo                 -> 'r'
+ * Iesire din joc       -> 'q' (cu revenire la meniul principal);
+
+    # Facilitati bonus:
+ 
+ * Optiune de UNDO -> Este implementata cu ajutorul unui vector de matrici
+                alocat dinamic care isi mareste marimea cu fiecare noua mutare.
+                In cazul in care optiunea este apelata, vectorul se micsoreaza
+                cu cate o unitate, memoria pentru acesta fiind realocata.
+                Aceasta optiune poate fi apelata pe oricate deplasari.
+ * Tabela de statistici -> Statisticile afisate sunt actualizate cu fiecare
+                mutare / optiune de undo. Statisticile afisate sunt: numarul
+                de deplasari pe cele 4 directii, numarul de mutari ale jocului
+                de unul singur si numarul de optiuni de undo apelate.
+ * Optiunea Resume nu este accesibila oricand -> Inainte de a incepe un joc sau
+                dupa finalizarea unui joc, jucatorul nu poate utiliza optiunea,
+                aceasta nefiind evidentiata pentru a da de inteles imposibili-
+                tatea accesarii.
+ * Utilizarea culorilor -> Fiecare numar are o culoare proprie. Meniul si
+                tabelele de scor, statistici si legenda sunt, de asemenea,
+                colorate.
+
+    # Subprograme utilizate:
+
+ * void culori() -> initializeaza perechile de culori folosite
+ * int mat_gol() -> verifica daca o matrice este goala
+ * int putere() -> calculeaza puterea lui 2 intr-un numar dat
+ * void afis() -> afiseaza tabla de joc si elementele din matrice
+ * int win() -> verifica daca jocul a fost castigat, pierdut sau daca continua
+ * int menu() -> afiseaza meniul si returneaza optiunea selectata de jucator
+ * void initmat() -> initializeaza matricea de joc si vectorul de matrici undo
+ * int directie() -> determina directia cea mai favorabila in cazul in care
+                    jocul muta singur
+ * void start() -> plaseaza 2 numere din multimea {2, 4} pe pozitii aleatoare
+ * void addrand() -> plaseaza 1 numar din multimea {2, 4} pe o pozitie
+                    aleatoare
+ * void data() -> afiseaza data si ora curente in tabela scor
+ * void stanga() -> deplaseaza in stanga elementele matricei de joc
+ * void dreapta() -> deplaseaza in dreapta
+ * void sus() -> deplaseaza in sus
+ * void jos() -> deplaseaza in jos
+ * void copy() -> copiaza ultima forma a matricei de joc in vectorul de matrici
+                si realoca memorie acestuia
+ * void statistici() -> afiseaza statisticile in tabela stats
+ * void new_game() -> in cazul optiunii "New Game" efectueaza deplasari in
+                    functie de comenzile primite
+ * void resume() -> in cazul optiunii "Resume" efectueaza deplasari in functie
+                    de comenzile primite
+ * void leg() -> afiseaza legenda in tabela legenda
