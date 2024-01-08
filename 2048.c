@@ -565,25 +565,25 @@ void copy(int ****undo, int *n, int *mat[]) {
 /* functie pentru afisarea statisticilor in timp real */
 void statistici(WINDOW *stats, int nr_sus, int nr_jos, int nr_stanga,
                 int nr_dreapta, int nr_auto, int nr_undo) {
-  mvwaddstr(stats, 1, 12, "STATS");
+  mvwaddstr(stats, 1, 14, "STATS");
 
-  mvwaddstr(stats, 3, 11, "SUS:");
-  mvwprintw(stats, 3, 15, "%3d", nr_sus);
+  mvwaddstr(stats, 3, 13, "SUS:");
+  mvwprintw(stats, 3, 17, "%3d", nr_sus);
 
-  mvwaddstr(stats, 4, 11, "JOS:");
-  mvwprintw(stats, 4, 15, "%3d", nr_jos);
+  mvwaddstr(stats, 4, 13, "JOS:");
+  mvwprintw(stats, 4, 17, "%3d", nr_jos);
 
-  mvwaddstr(stats, 5, 8, "STANGA:");
-  mvwprintw(stats, 5, 15, "%3d", nr_stanga);
+  mvwaddstr(stats, 5, 10, "STANGA:");
+  mvwprintw(stats, 5, 17, "%3d", nr_stanga);
 
-  mvwaddstr(stats, 6, 7, "DREAPTA:");
-  mvwprintw(stats, 6, 15, "%3d", nr_dreapta);
+  mvwaddstr(stats, 6, 9, "DREAPTA:");
+  mvwprintw(stats, 6, 17, "%3d", nr_dreapta);
 
-  mvwaddstr(stats, 7, 10, "AUTO:");
-  mvwprintw(stats, 7, 15, "%3d", nr_auto);
+  mvwaddstr(stats, 7, 12, "AUTO:");
+  mvwprintw(stats, 7, 17, "%3d", nr_auto);
 
-  mvwaddstr(stats, 8, 10, "UNDO:");
-  mvwprintw(stats, 8, 15, "%3d", nr_undo);
+  mvwaddstr(stats, 8, 12, "UNDO:");
+  mvwprintw(stats, 8, 17, "%3d", nr_undo);
   box(stats, 0, 0);
   wrefresh(stats);
 }
@@ -1011,7 +1011,7 @@ int main(void) {
   // folosim sageti pentru deplasare
   keypad(wnd, true);
   legenda = newwin(9, 34, 5, 70);
-  stats = newwin(10, 30, 15, 72);
+  stats = newwin(10, 34, 15, 70);
   /* Se reflectă schimbările pe ecran */
   refresh();
   start_color();
