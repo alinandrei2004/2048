@@ -54,6 +54,8 @@ o mutare favorabila.
  * Utilizarea culorilor -> Fiecare numar are o culoare proprie. Meniul si
                 tabelele de scor, statistici si legenda sunt, de asemenea,
                 colorate.
+ * Afisarea ultimei mutari -> Dupa fiecare mutare valida sau optiune de undo
+                se va afisa in tabela de scor respectiva mutare.
 
     # Subprograme utilizate:
 
