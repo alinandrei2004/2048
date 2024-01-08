@@ -767,6 +767,10 @@ void new_game(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
               (*mat)[i][j] = (*undo)[*n - 2][i][j];
             }
           }
+          for (i = k - 1; i > 0; i--) {
+            strcpy(com[i], com[i - 1]);
+          }
+          strcpy(com[0], "UNDO        ");
           (*n)--;
         }
       }
@@ -951,6 +955,10 @@ void resume(WINDOW *joc, WINDOW *scor, WINDOW *stats, int *puncte, int ***mat,
               (*mat)[i][j] = (*undo)[*n - 2][i][j];
             }
           }
+          for (i = k - 1; i > 0; i--) {
+            strcpy(com[i], com[i - 1]);
+          }
+          strcpy(com[0], "UNDO        ");
           (*n)--;
         }
       }
@@ -970,6 +978,8 @@ void leg(WINDOW *legenda) {
   mvwaddstr(legenda, 3, 3, "D - Dreapta");
   mvwaddstr(legenda, 4, 3, "W - Sus");
   mvwaddstr(legenda, 5, 3, "S - Jos");
+  mvwaddstr(legenda, 6, 3, "Q - Iesire");
+  mvwaddstr(legenda, 7, 3, "R - Undo");
   box(legenda, 0, 0);
   wrefresh(legenda);
 }
@@ -1000,7 +1010,7 @@ int main(void) {
   curs_set(0);
   // folosim sageti pentru deplasare
   keypad(wnd, true);
-  legenda = newwin(7, 34, 5, 70);
+  legenda = newwin(9, 34, 5, 70);
   stats = newwin(10, 30, 15, 72);
   /* Se reflectă schimbările pe ecran */
   refresh();
